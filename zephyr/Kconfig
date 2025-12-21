@@ -1,0 +1,12 @@
+menuconfig CTRL_FREAK_LITE
+    bool "Custom messaging protocol"
+    help
+    Enable YourCo ctrl freak lite
+
+if CTRL_FREAK_LITE
+    config CTRL_FREAK_LITE_LOG_LEVEL
+        int "CTRL_FREAK_LITE log level"
+        default 3
+        help
+        Set the log level for the CTRL_FREAK_LITE (0-4).
+endif # CTRL_FREAK_LITE
