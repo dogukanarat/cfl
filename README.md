@@ -1,2 +1,2 @@
-# ctrl_freak_lite
-Packet frame
+# CFL (Control Freak Lite)
+Packet frame library for embedded systems
