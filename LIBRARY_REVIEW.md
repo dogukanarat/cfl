@@ -2,9 +2,40 @@
 
 ## Executive Summary
 
-CFL is a lightweight packet framing protocol library designed for embedded systems. It provides a custom messaging protocol with request/reply semantics, CRC validation, and integration with the DANP transport layer. While the core protocol implementation is solid, the library lacks critical features for production use including tests, documentation, examples, and several advertised capabilities.
+CFL (Control Freak Lite) is a lightweight packet framing protocol library designed for embedded systems in **low-risk, trusted network environments** such as internal test networks, lab setups, and controlled embedded system clusters. It provides a custom messaging protocol with request/reply semantics, CRC validation, and integration with the DANP transport layer.
 
-**Overall Assessment:** Early-stage prototype with good architectural foundation but needs significant work before production readiness.
+**Scope and Versioning:**
+- **CFL Lite (this version):** Optimized for simplicity, minimal footprint, and use in trusted environments
+- **CFL Standard (planned):** Will include advanced features like encryption, compression, authentication, and enhanced reliability for production deployments
+
+**Overall Assessment:** Solid architectural foundation suitable for internal/test networks. Needs tests and documentation to be production-ready for its intended scope.
+
+---
+
+## Scope and Intended Use
+
+### Target Environment
+- **Low-risk networks:** Internal lab networks, test environments, development setups
+- **Trusted nodes:** All communicating devices under your control
+- **Physical security:** Networks with physical access controls
+- **Non-internet facing:** Private networks isolated from public internet
+
+### Design Philosophy - "Lite" Version
+This version prioritizes:
+- ✅ Simplicity and minimal code footprint
+- ✅ Ease of understanding and debugging
+- ✅ Fast integration into test/development environments
+- ✅ Zero external dependencies (beyond transport)
+- ✅ Deterministic behavior for embedded systems
+
+### Out of Scope - Reserved for "Standard" Version
+Features intentionally deferred to future standard version:
+- Encryption (CFL_F_ENCRYPTED flag reserved)
+- Compression (CFL_F_COMPRESSED flag reserved)
+- Authentication and signing
+- Advanced retry/reliability mechanisms
+- Message fragmentation
+- Rate limiting and QoS
 
 ---
 
@@ -53,10 +84,10 @@ cfl_header_t (10 bytes packed):
 
 ---
 
-## 2. Critical Missing Pieces
+## 2. Missing Pieces for Production-Ready "Lite" Version
 
 ### 2.1 Testing Infrastructure
-**Priority: CRITICAL**
+**Priority: CRITICAL** ⚠️
 
 - ❌ No unit tests
 - ❌ No integration tests
@@ -66,7 +97,8 @@ cfl_header_t (10 bytes packed):
 
 **Impact:** Cannot verify correctness, regression prevention impossible
 
-**Recommendation:** Add test framework (Unity, CppUTest, or Zephyr's ztest)
+**Recommendation:** Add test framework (Unity recommended for embedded C)
+**Status:** Being addressed in this iteration
 
 ### 2.2 Documentation
 **Priority: HIGH**
@@ -97,27 +129,31 @@ Referenced in `zephyr/CMakeLists.txt` but not present:
 - ❌ `cfl_service.c` - Generic service layer?
 - ❌ `cfl_shell.c` - Shell commands for debugging
 
-### 2.5 Unimplemented Features
-**Priority: MEDIUM**
+### 2.5 Features Reserved for "Standard" Version
+**Priority: DEFERRED** ℹ️
 
-Flags defined but not implemented:
-- ❌ `CFL_F_ENCRYPTED` - No encryption support
-- ❌ `CFL_F_COMPRESSED` - No compression support
-- ❌ `CFL_F_RESERVED` - Purpose unclear
+Flags defined for future use:
+- 📌 `CFL_F_ENCRYPTED` - Encryption support (Standard version)
+- 📌 `CFL_F_COMPRESSED` - Compression support (Standard version)
+- 📌 `CFL_F_RESERVED` - Reserved for future protocol extensions
 
-**Recommendation:** Either implement or remove to avoid confusion
+**Status:** Intentionally not implemented in Lite version. Flags reserved for protocol compatibility with future Standard version.
 
-### 2.6 Advanced Features
-**Priority: MEDIUM**
+### 2.6 Advanced Features - Standard Version Roadmap
+**Priority: FUTURE** 📋
 
-- ❌ Request timeout and retry mechanism
-- ❌ Async response handling (request tracking)
-- ❌ Message fragmentation for large payloads
-- ❌ Flow control
-- ❌ Connection management
-- ❌ Keepalive/heartbeat
-- ❌ Metrics and statistics
-- ❌ Debug/trace capabilities
+Features planned for Standard version:
+- 📌 Request timeout and retry mechanism
+- 📌 Async response handling (request tracking)
+- 📌 Message fragmentation for large payloads (>4KB)
+- 📌 Flow control and backpressure
+- 📌 Connection management
+- 📌 Keepalive/heartbeat
+- 📌 Authentication and message signing
+- 📌 End-to-end encryption
+- 📌 Rate limiting and QoS
+
+**Status:** Out of scope for Lite version - complexity not needed for trusted networks
 
 ### 2.7 Project Essentials
 **Priority: HIGH**
@@ -512,34 +548,32 @@ cfl_service_danp_send_request(node, port, MSG_ID, payload, stream.bytes_written)
 
 ## 5. Recommendations
 
-### 5.1 Immediate Actions (Pre-Production)
+### 5.1 Critical for Lite v1.0 Release
 
-1. **Add comprehensive tests** - Use Zephyr's ztest or Unity
-2. **Fix endianness** - Define and implement byte order
-3. **Add thread safety** - Mutex for handler registry
-4. **Write documentation** - API docs, protocol spec, examples
+1. **Add comprehensive tests** ⚠️ - Use Unity test framework (in progress)
+2. **Fix endianness** - Define and implement network byte order
+3. **Add thread safety** - Mutex for handler registry operations
+4. **Write documentation** - API docs, protocol spec, integration guide
 5. **Add LICENSE** - Choose appropriate open source license
-6. **Implement or remove** - Encryption/compression flags
-7. **Create examples** - Basic usage, request/reply, handlers
+6. **Create examples** - Basic usage, request/reply, handler registration
+7. **Implement cfl_service.c** - Referenced in CMakeLists.txt
 
-### 5.2 Short-term Improvements
+### 5.2 Important for Lite v1.x
 
-1. **Request tracking** - Async response callbacks with timeout
-2. **Logging infrastructure** - Integration with Zephyr logging
-3. **Shell commands** - Implement cfl_shell.c for debugging
-4. **Metrics** - Message counts, error rates, latency stats
-5. **Validate flag combinations** - Prevent invalid states
-6. **Better error reporting** - Detailed error context
+1. **Shell commands** - Implement cfl_shell.c for debugging
+2. **Logging infrastructure** - Integration with Zephyr logging subsystem
+3. **Validate flag combinations** - Prevent invalid states (e.g., RQST + PUSH)
+4. **Better error reporting** - Detailed error context for debugging
+5. **Performance optimization** - Consider hash-based handler lookup
+6. **Multi-instance support** - Remove global state limitation
 
-### 5.3 Long-term Enhancements
+### 5.3 Deferred to Standard Version
 
-1. **Multi-instance support** - Remove global state
-2. **Fragmentation** - Support large payloads
-3. **Security** - Implement encryption flag (ChaCha20-Poly1305?)
-4. **Compression** - Implement compression flag (LZ4, Heatshrink?)
-5. **Performance optimization** - Hash-based handler lookup
-6. **Advanced features** - Flow control, connection management
-7. **Interoperability** - Integration with standard protocols as transport
+Features intentionally out of scope for Lite:
+1. **Security features** - Encryption, authentication, signing
+2. **Reliability features** - Request tracking, timeouts, retries
+3. **Scalability features** - Fragmentation, flow control
+4. **Advanced features** - Compression, QoS, connection management
 
 ### 5.4 Documentation Needs
 
@@ -597,27 +631,53 @@ Create the following documents:
 
 ## 8. Security Considerations
 
-### Current State:
-- ❌ No authentication
-- ❌ No encryption (flag defined but not implemented)
-- ❌ No replay protection
-- ❌ No message signing
-- ✅ CRC prevents unintentional corruption (not malicious tampering)
+### Design Approach - Lite Version
+CFL Lite is **intentionally designed for trusted, low-risk networks** where physical security and network isolation provide primary protection. This approach:
+- ✅ Reduces code complexity and attack surface
+- ✅ Eliminates cryptographic dependencies
+- ✅ Improves debuggability (cleartext inspection)
+- ✅ Minimizes resource usage (no crypto overhead)
+- ✅ Simplifies certification for safety-critical systems
 
-### Recommendations:
-1. **Add authentication** - HMAC-SHA256 for message authentication
-2. **Implement encryption** - Use CFL_F_ENCRYPTED flag with authenticated encryption (ChaCha20-Poly1305)
-3. **Replay protection** - Timestamp or nonce in messages
-4. **Key management** - Define key exchange mechanism
-5. **Security levels** - Allow configurable security policies
+### Current State (Lite Version):
+- ℹ️ No authentication - Trusted network assumption
+- ℹ️ No encryption - Reserved for Standard version (CFL_F_ENCRYPTED flag)
+- ℹ️ No replay protection - Not needed in controlled environments
+- ℹ️ No message signing - Trust based on network isolation
+- ✅ CRC-16 prevents unintentional corruption and transmission errors
 
-### Attack Vectors:
-- **Message injection** - No authentication, attacker can send arbitrary messages
-- **Replay attacks** - No sequence validation, can replay captured messages
-- **DoS** - Can flood handler queue, no rate limiting
-- **Information disclosure** - Cleartext protocol
+### Threat Model - Lite Version
 
-**Risk Level:** HIGH for untrusted networks, acceptable for physically secure systems
+**In-Scope Threats (Protected):**
+- ✅ Transmission errors and bit flips (CRC protection)
+- ✅ Message corruption (CRC validation)
+- ✅ Protocol violations (strict validation)
+- ✅ Buffer overflows (bounds checking)
+
+**Out-of-Scope Threats (Mitigated by Network Design):**
+- 🔒 Attacker with physical network access → Prevented by physical security
+- 🔒 Man-in-the-middle attacks → Prevented by network isolation
+- 🔒 Eavesdropping → Acceptable for non-sensitive test data
+- 🔒 Message injection → Prevented by network access controls
+
+### Deployment Requirements
+For safe deployment of CFL Lite:
+1. **Physical security** - Locked equipment rooms, secured cabling
+2. **Network isolation** - VLANs, air-gapped networks, separate physical networks
+3. **Access control** - Only authorized personnel can connect devices
+4. **Non-sensitive data** - Test/development data without compliance requirements
+5. **Monitoring** - Log unusual traffic patterns
+
+### Migration Path to Standard Version
+When deployment requirements change:
+- **Encryption needed** → Migrate to CFL Standard (implements CFL_F_ENCRYPTED)
+- **Internet-facing** → Migrate to CFL Standard with TLS/DTLS wrapper
+- **Untrusted nodes** → Migrate to CFL Standard with authentication
+- **Compliance required** → Migrate to CFL Standard with audit logging
+
+**Risk Level:**
+- ✅ **LOW** for intended use (trusted internal networks)
+- ⚠️ **HIGH** if misused (untrusted/internet-facing networks - use Standard version instead)
 
 ---
 
@@ -655,37 +715,59 @@ Create the following documents:
 ## 10. Conclusion
 
 **Summary:**
-CFL is a **promising foundation** for a lightweight embedded messaging protocol with clean architecture and sensible design choices. However, it is currently in an **early prototype stage** and requires significant work before production deployment.
+CFL Lite is a **well-architected lightweight messaging protocol** specifically designed for trusted, low-risk embedded networks. The core protocol implementation is solid with sensible design choices. The library is approaching readiness for its intended use case (internal/test networks) but needs tests and documentation to be production-ready.
 
-**Critical Gaps:**
-- No tests
-- No documentation
-- No examples
-- Missing core features (request tracking)
-- Unimplemented advertised features (encryption/compression)
+**Current Status - Lite Version:**
+- ✅ Core protocol complete and functional
+- ✅ Clean architecture suitable for embedded systems
+- ⚠️ Missing tests (being addressed)
+- ⚠️ Minimal documentation
+- ⚠️ No examples
+- ℹ️ Security features intentionally deferred to Standard version
 
 **Key Strengths:**
-- Clean, simple design
+- Clean, simple design optimized for minimal footprint
 - Suitable for resource-constrained devices
-- Good separation of concerns
+- Good separation of concerns (protocol vs transport)
 - Zero dynamic allocation
+- Perfect for trusted network environments
 
-**Verdict:**
-- **For production use:** NOT READY (need tests, docs, security)
-- **For internal projects:** USABLE with caution
-- **For learning:** EXCELLENT (clear, simple codebase)
-- **Potential:** HIGH if gaps addressed
+**Verdict for Lite Version:**
+- **For trusted internal networks:** NEARLY READY (add tests + docs)
+- **For test/lab environments:** SUITABLE with tests
+- **For learning embedded protocols:** EXCELLENT (clear, simple codebase)
+- **For internet-facing:** NOT SUITABLE (use Standard version when available, or CoAP)
+- **For untrusted networks:** NOT SUITABLE (use Standard version with encryption)
 
-**Estimated Effort to Production:**
-- **Tests:** 2-3 weeks
-- **Documentation:** 1-2 weeks
-- **Examples:** 3-5 days
-- **Missing features:** 2-4 weeks
-- **Security:** 3-4 weeks
-- **Total:** 2-3 months of dedicated development
+**Estimated Effort to Lite v1.0:**
+- **Tests:** 1-2 weeks (in progress with Unity)
+- **Documentation:** 1 week (API reference, protocol spec)
+- **Examples:** 3-5 days (basic usage patterns)
+- **Bug fixes from testing:** 3-5 days
+- **Total:** ~3-4 weeks to production-ready Lite v1.0
+
+**Estimated Effort to Standard Version:**
+- **Advanced reliability:** 2-3 weeks (request tracking, timeouts)
+- **Security features:** 3-4 weeks (encryption, authentication)
+- **Scalability:** 2-3 weeks (fragmentation, flow control)
+- **Testing & hardening:** 2-3 weeks
+- **Total:** ~3-4 months for Standard version
 
 **Recommendation:**
-If considering for production, invest in completing the missing pieces. If time is critical, consider using established alternatives (CoAP for internet-facing, MQTT-SN for many-to-many). For custom internal systems where you control both ends, CFL can work but needs hardening.
+CFL Lite fills an important niche for **simple, trusted embedded networks** where protocol simplicity and minimal footprint are more valuable than advanced features. The intentional limitation to trusted networks is a sound design decision that keeps the codebase maintainable and auditable.
+
+**Use CFL Lite when:**
+- You control all network nodes
+- Network is physically secured
+- Simplicity > feature richness
+- Code size matters
+- No compliance requirements
+
+**Wait for CFL Standard when:**
+- Internet-facing deployment
+- Untrusted network nodes
+- Security/compliance required
+- Need advanced reliability features
 
 ---
 
