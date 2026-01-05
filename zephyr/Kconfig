@@ -1,17 +1,4 @@
 menuconfig CFL
-    bool "Custom messaging protocol"
+    bool "Custom messaging protocol support"
     help
-    Enable YourCo ctrl freak lite
-
-if CFL
-    config CFL_LOG_LEVEL
-        int "CFL log level"
-        default 2
-        help
-            Set the log level for the DANP module:
-            0: Off
-            1: Error
-            2: Warning
-            3: Info
-            4: Debug
-endif # CFL
+    Enable control freak lite support
