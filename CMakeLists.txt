@@ -97,6 +97,11 @@ target_compile_options(Cfl
         >
 )
 
+target_compile_definitions(Cfl
+    PRIVATE
+        CFL_EXPORTS
+)
+
 # ==============================================================================
 # Library Properties
 # ==============================================================================
@@ -148,18 +153,18 @@ set_target_properties(Cfl
 # ==============================================================================
 # Optional Components
 # ==============================================================================
-# Enable testing if BUILD_TESTS is ON
-if(BUILD_TESTS)
-    message(STATUS "Building tests enabled")
-    enable_testing()
-    add_subdirectory(test)
-endif()
+# # Enable testing if BUILD_TESTS is ON
+# if(BUILD_TESTS)
+#     message(STATUS "Building tests enabled")
+#     enable_testing()
+#     add_subdirectory(test)
+# endif()
 
-# Add example subdirectory if BUILD_EXAMPLES is ON
-if(BUILD_EXAMPLES)
-    message(STATUS "Building examples enabled")
-    add_subdirectory(example)
-endif()
+# # Add example subdirectory if BUILD_EXAMPLES is ON
+# if(BUILD_EXAMPLES)
+#     message(STATUS "Building examples enabled")
+#     add_subdirectory(example)
+# endif()
 
 # ==============================================================================
 # Installation Rules

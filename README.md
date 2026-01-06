@@ -295,13 +295,12 @@ cmake_minimum_required(VERSION 3.14)
 project(MyProject)
 
 # Find the installed library
-find_package(cfl REQUIRED)
-
+find_package(Cfl REQUIRED)
 # Create your executable
 add_executable(myapp main.c)
 
 # Link against the library
-target_link_libraries(myapp PRIVATE cfl::cfl)
+target_link_libraries(myapp PRIVATE Cfl::Cfl)
 ```
 
 ### In Your C Code
