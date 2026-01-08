@@ -1,12 +1,7 @@
 if(CONFIG_CFL)
-    zephyr_library()
+    add_library(cfl_lib INTERFACE)
 
-    zephyr_library_sources(
-        ../src/cfl.c
-    )
+    target_include_directories(cfl_lib INTERFACE ../include)
 
-    zephyr_include_directories(
-        ../include
-        ../src
-    )
+    target_link_libraries(zephyr_interface INTERFACE cfl_lib)
 endif()
