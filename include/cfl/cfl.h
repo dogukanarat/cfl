@@ -54,19 +54,13 @@ extern "C"
 /// @note All multi-byte fields are in big-endian format
 typedef struct cfl_message_s
 {
-    uint16_t sync;   ///< Sync word
-    uint8_t version; ///< Protocol version
-    uint8_t flags;   ///< Message flags
-    uint16_t id;     ///< Message ID
-    uint16_t seq;    ///< Sequence number
-    uint16_t length; ///< Length of payload in bytes
-    union
-    {
-        uint8_t data[0];
-        uint16_t data16[0];
-        uint32_t data32[0];
-        uint64_t data64[0];
-    };
+    uint16_t sync;        ///< Sync word
+    uint8_t version;      ///< Protocol version
+    uint8_t flags;        ///< Message flags
+    uint16_t cmd_id;      ///< Command ID
+    uint16_t seq;         ///< Sequence number
+    uint16_t length;      ///< Length of payload in bytes
+    uint8_t data[0];      ///< Payload data
 } cfl_message_t;
 
 /* External Declarations */
